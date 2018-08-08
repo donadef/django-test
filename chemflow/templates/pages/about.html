@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+
+  <div class="section" id="chemflow">
+<h1>ChemFlow</h1>
+<img alt="Logo" src="https://user-images.githubusercontent.com/27850535/29564754-6b07a548-8743-11e7-9463-8626675b9481.png" />
+<ul class="simple">
+<li>Free software: MIT license</li>
+</ul>
+<p>ChemFlow is a series of computational chemistry workflows designed to automatize and simplify the drug discovery pipeline and scoring function benchmarking.</p>
+<p>The workflows allow the user to spend more time <strong>thinking</strong>, i.e. running benchmarks or experiments, analyzing the data, and taking decisions, rather than programming/testing/debugging their own scripts.</p>
+<p>It consists of <em>BASH</em> and <em>PYTHON</em> scripts that can be launched locally (serial or with GNU parallel) or on a compute cluster via PBS.</p>
+<ul class="simple">
+<li><strong>DockFlow</strong> : Docking and Virtual Screening</li>
+<li><strong>ScoreFlow</strong> : Rescoring using PLANTS, Vina, or MM(PB,GB)SA</li>
+</ul>
+{% endblock content %}

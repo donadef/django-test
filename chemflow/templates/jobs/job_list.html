@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}ChemFlow - Jobs{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Jobs</h2>
+
+  <div>
+    <a href="{% url 'jobs:create' %}">
+      <button type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        New Job
+      </button>
+    </a>
+  </div>
+
+  <div class="py-5" >
+    <div class="container">
+      {% for job in job_list %}
+        {% if job.owner.id == request.user.id or request.user.is_superuser %}
+          <div class="row">
+            <div class="list-group-item list-group-item-action flex-column align-items-start active">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ job.job_name }}</h5>
+                <small>{{ job.created_at }}</small>
+              </div>
+              <a href="{% url 'jobs:detail' job.pk %}">
+                <button type="button" class="btn btn-default" aria-label="Show">
+                  <span class="glyphicon glyphicon-eye-open" aria-hidden="true">Show</span>
+                </button>
+              </a>
+              <a href="{% url 'jobs:delete' job.pk %}">
+                <button type="button" class="btn btn-default" aria-label="Delete">
+                  <span class="glyphicon glyphicon-trash" aria-hidden="true">Delete</span>
+                </button>
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

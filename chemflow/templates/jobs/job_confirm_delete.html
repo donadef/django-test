@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}ChemFlow | Delete {{ object.job_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Delete {{ object.job_name }}</h2>
+
+  <div>
+    <form method="post">
+      {% csrf_token %}
+        <p>Are you sure you want to delete job "{{ object }}"?</p>
+        <input type="submit" value="Confirm">
+    </form>
+  </div>
+</div>
+{% endblock content %}

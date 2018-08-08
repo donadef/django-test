@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}Jobs{% endblock %}
+
+{% block content %}
+  <div class="py-5" >
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8">
+          <!--<form method="post" action="{% url 'jobs:list' %}">-->
+          <form method="post">
+            {% csrf_token %}
+              <!--{{ form.job_name }}-->
+            <div class="form-group">
+              <label for="{{ form.project.id_for_label }}">Project</label>
+              {{ form.project_name }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.protocol.id_for_label }}">Protocol</label>
+              {{ form.protocol }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.protocol.id_for_label }}">Job name</label>
+              {{ form.job_name }}
+              <span id="id_job_name_errors" style="color: red;"><small>{{ form.job_name.errors }}</small></span>
+            </div>
+            <div class="form-group">
+              <label>Scoring Function:</label>
+              {{ form.sf }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.receptor_file.id_for_label }}">Receptor file</label>
+              <small><span class="mol2">(a .mol2 file)</span><span class="pdb" style="display: none;">(a .pdb file)</span></small>
+              {{ form.receptor_file }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.ligands_file.id_for_label }}">Ligands file</label>
+              <small>(a .mol2 file)</small>
+              {{ form.ligands_file }}
+            </div>
+            <div class="form-group center">
+              <label>Center</label>
+              <div>
+                {{ form.center_x }}
+                {{ form.center_y }}
+                {{ form.center_z }}
+              </div>
+            </div>
+            <div class="form-group radius" style="display: none;">
+              <label>Radius</label>
+              <div>
+                {{ form.radius }}
+              </div>
+            </div>
+            <div class="form-group size">
+              <label>Size</label>
+              <div>
+                {{ form.size_x }}
+                {{ form.size_y }}
+                {{ form.size_z }}
+              </div>
+            </div>
+            <button type="submit" onclick="reset_sf()" class="btn btn-primary">Launch</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock content %}
+
+  {% block javascript_spe %}
+  <script>
+
+    document.getElementById("id_project_name").oninput = function() {update_job_name_with_project_name()};
+    document.getElementById("id_protocol").oninput = function() {update_job_name_with_protocol()};
+
+    document.getElementById("id_sf").onchange = function() {update_required_field()};
+
+    document.getElementsByTagName("button").onclick = function() {reset_sf}
+
+
+  </script>
+  {% endblock javascript_spe %}
