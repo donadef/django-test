@@ -2,44 +2,168 @@
 {% load static i18n %}
 {% block title %}ChemFlow - Jobs{% endblock %}
 
+
+{% block css_spe %}
+  <link rel="stylesheet" href="{% static 'css/table.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
   <h2>Jobs</h2>
 
-  <div>
-    <a href="{% url 'jobs:create' %}">
+  <div class="my-2">
+    <a href="{% url 'jobs:create_dock' %}">
       <button type="button" class="btn btn-default">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-        New Job
+        <span class="fas fa-plus" aria-hidden="true"></span>
+        New docking
+      </button>
+    </a>
+    <a href="{% url 'jobs:create_score' %}">
+      <button type="button" class="btn btn-default">
+        <span class="fas fa-plus" aria-hidden="true"></span>
+        New rescoring
       </button>
     </a>
   </div>
 
   <div class="py-5" >
-    <div class="container">
-      {% for job in job_list %}
-        {% if job.owner.id == request.user.id or request.user.is_superuser %}
-          <div class="row">
-            <div class="list-group-item list-group-item-action flex-column align-items-start active">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{ job.job_name }}</h5>
-                <small>{{ job.created_at }}</small>
-              </div>
-              <a href="{% url 'jobs:detail' job.pk %}">
-                <button type="button" class="btn btn-default" aria-label="Show">
-                  <span class="glyphicon glyphicon-eye-open" aria-hidden="true">Show</span>
-                </button>
-              </a>
-              <a href="{% url 'jobs:delete' job.pk %}">
-                <button type="button" class="btn btn-default" aria-label="Delete">
-                  <span class="glyphicon glyphicon-trash" aria-hidden="true">Delete</span>
-                </button>
-              </a>
-            </div>
+    <div class="row">
+      <div class="panel panel-primary filterable">
+        <div class="panel-heading">
+          <h3 class="panel-title">Dockings</h3>
+          <div class="pull-right" style="float:right">
+            <button class="btn btn-default btn-xs btn-filter"><span class="fas fa-search"></span> Filter</button>
           </div>
-        {% endif %}
-      {% endfor %}
+        </div>
+        <table class="table">
+          <thead>
+            <tr class="filters">
+              <th>
+                <input type="text" class="form-control" placeholder="Job name" disabled="disabled"> </th>
+              <th>
+                <input type="text" class="form-control" placeholder="receptor" disabled="disabled"> </th>
+              <th>
+                <input type="text" class="form-control" placeholder="ligands" disabled="disabled"> </th>
+              <th>
+                <input type="text" class="form-control" placeholder="date" disabled="disabled"> </th>
+              <th style="width:100px;">
+                <input type="text" class="form-control" placeholder="state" disabled="disabled"> </th>
+              <th style="width:130px"></th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for job in job_list %}
+              {% if job.job_type == 'dock' %}
+                {% if job.owner.id == request.user.id or request.user.is_superuser %}
+                <tr>
+                  <td>
+                    <h5 class="mb-1">{{ job.job_name }}</h5>
+                  </td>
+                  <td>
+                    {{ job.receptor_name }}
+                  </td>
+                  <td>
+                    {{ job.ligands_name }}
+                  </td>
+                  <td>
+                    <small>{{ job.created_at }}</small>
+                  </td>
+                  <td>
+                    {{ job.state }}
+                  </td>
+                  <td style="text-align:center">
+                    <a href="{% url 'jobs:detail' job.pk %}">
+                      <button type="button" class="btn btn-default" aria-label="Show">
+                        <span class="far fa-eye" aria-hidden="true"></span>
+                      </button>
+                    </a>
+                    <a href="{% url 'jobs:delete' job.pk %}">
+                      <button type="button" class="btn btn-default" aria-label="Delete">
+                        <span class="fas fa-trash-alt" aria-hidden="true"></span>
+                      </button>
+                    </a>
+                  </td>
+                </tr>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
+  <div class="py-5" >
+    <div class="row">
+      <div class="panel panel-primary filterable">
+        <div class="panel-heading">
+          <h3 class="panel-title">Rescorings</h3>
+          <div class="pull-right" style="float:right">
+            <button class="btn btn-default btn-xs btn-filter"><span class="fas fa-search"></span> Filter</button>
+          </div>
+        </div>
+        <table class="table">
+          <thead>
+            <tr class="filters">
+              <th>
+                <input type="text" class="form-control" placeholder="Job name" disabled="disabled"> </th>
+              <th>
+                <input type="text" class="form-control" placeholder="receptor" disabled="disabled"> </th>
+              <th>
+                <input type="text" class="form-control" placeholder="ligands" disabled="disabled"> </th>
+              <th>
+                <input type="text" class="form-control" placeholder="date" disabled="disabled"> </th>
+              <th style="width:100px">
+                <input type="text" class="form-control" placeholder="state" disabled="disabled"> </th>
+              <th style="width:130px"></th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for job in job_list %}
+              {% if job.job_type == 'score' %}
+                {% if job.owner.id == request.user.id or request.user.is_superuser %}
+                <tr>
+                  <td>
+                    <h5 class="mb-1">{{ job.job_name }}</h5>
+                  </td>
+                  <td>
+                    {{ job.receptor_name }}
+                  </td>
+                  <td>
+                    {{ job.ligands_name }}
+                  </td>
+                  <td>
+                    {{ job.created_at }}
+                  </td>
+                  <td>
+                    {{ job.state }}
+                  </td>
+                  <td style="text-align:center">
+                    <a href="{% url 'jobs:detail' job.pk %}">
+                      <button type="button" class="btn btn-default" aria-label="Show">
+                        <span class="far fa-eye" aria-hidden="true"></span>
+                      </button>
+                    </a>
+                    <a href="{% url 'jobs:delete' job.pk %}">
+                      <button type="button" class="btn btn-default" aria-label="Delete">
+                        <span class="fas fa-trash-alt" aria-hidden="true"></span>
+                      </button>
+                    </a>
+                  </td>
+                </tr>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
 </div>
 {% endblock content %}
+
+{% block javascript_spe %}
+  <script src="{% static 'js/table.js' %}"></script>
+{% endblock javascript_spe %}

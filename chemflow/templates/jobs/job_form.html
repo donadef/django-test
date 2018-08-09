@@ -8,9 +8,8 @@
       <div class="row">
         <div class="col-md-8">
           <!--<form method="post" action="{% url 'jobs:list' %}">-->
-          <form method="post">
+          <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-              <!--{{ form.job_name }}-->
             <div class="form-group">
               <label for="{{ form.project.id_for_label }}">Project</label>
               {{ form.project_name }}

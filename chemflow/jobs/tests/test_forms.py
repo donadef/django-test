@@ -22,25 +22,35 @@ class JobTestCase(TestCase):
         c = Client()
         c.force_login(user=self.user)
 
-        data = {
+        data1 = {
             "project_name": "test",
             "protocol": "test",
-            "sf": "mmgbsa",
-            "receptor_file": "file",
-            "ligands_file": "file",
+            "sf": "vina",
+            "receptor_file": "/home/donadef/Downloads/Screenshot.png",
+            "ligands_file": "/home/donadef/Downloads/Screenshot.png",
         }
-        response = c.post('/jobs/new', data=data)
+
+        response = c.post(reverse('jobs:create_dock'), data=data1)
         # response = self.client.get(reverse('carmanager:saveNewDriverInfo'), data={
         #     'form': {'carID': '1034567', 'Driver_Last_Name': 'daddy', 'Driver_First_Name': 'daddy',
         #              'Driver_Middle_Initial': 'K', 'entered_by': 'king'}})
         # self.assertRedirects(response, expected_url, status_code, target_status_code, host, msg_prefix, fetch_redirect_response)
-        print(response)
+        print(response.context['form'].errors)
         self.assertRedirects(response, '/jobs/')
 
-        Job.objects.get()
+        data2 = {
+            "project_name": "test",
+            "protocol": "test",
+            "sf": "vina",
+            "receptor_file": "/home/donadef/Downloads/Screenshot.png",
+            "ligands_file": "/home/donadef/Downloads/Screenshot.png",
+        }
 
-        response = c.post('/jobs/new', data=data)
+        response = c.post(reverse('jobs:create_dock'), data=data2)
+        # Job.objects.get()
+        #
+        # response = c.post('/jobs/new', data=data)
         print(response.context['form'].errors)
-        print(response.context['form']['sf'].data)
-        print(type(response.context['form']['sf']))
+        # print(response.context['form']['sf'].data)
+        # print(type(response.context['form']['sf']))
         # self.assertNotContains(response, 'something went wrong', 200)

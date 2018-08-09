@@ -1,33 +1,73 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, ListView, CreateView, DeleteView
+from django.urls import reverse
 
 from .models import Job
-from .forms import JobForm
-from chemflow.jobs.tasks import run_job
+from .forms import JobDockForm, JobScoreForm
+from chemflow.jobs.tasks import run_dock, run_score
 
 
 class JobCreateView(LoginRequiredMixin, CreateView):
     model = Job
-    form_class = JobForm
-    success_url = '/jobs/'
+    slug_field = "job_type"
+    slug_url_kwarg = "job_type"
 
     def post(self, request, *args, **kwargs):
         request.POST = request.POST.copy()
-        request.POST['job_name'] = request.POST.get('project_name') + " - " + request.POST.get('protocol')
+        print(request.POST)
+        print(request.FILES)
         request.POST['owner'] = request.user.id
         request.POST['state'] = 'Q'
-        # call(["DockFlow", "-h"])
-        run_job.delay("test", "file", "file", 1, 2, 3)
+        request.POST['job_name'] = request.POST.get('project_name') + " - " + request.POST.get('protocol')
+        print(request.FILES['receptor_file'])
+        request.POST['receptor_name'] = request.FILES['receptor_file']
+        request.POST['ligands_name'] = request.FILES['receptor_file']
         return super(JobCreateView, self).post(request, *args, **kwargs)
 
-    # def get_form_kwargs(self):
-    #     # pass "user" keyword argument with the current user to your form
-    #     kwargs = super(JobCreateView, self).get_form_kwargs()
-    #     kwargs['owner'] = self.request.user
-    #     return kwargs
+    def get_success_url(self):
+        return reverse("jobs:list")
+
+    def form_valid(self, form):
+        user_jobs = list(Job.objects.filter(owner=self.request.user,
+                                            job_type=self.request.POST.get('job_type'),
+                                            job_name=self.request.POST.get('job_name')))
+        if len(user_jobs) > 0:
+            form.add_error('job_name', u'You already have a job with the same name. Please change the project or protocol name.')
+            return self.form_invalid(form)
+
+        return super(JobCreateView, self).form_valid(form)
 
 
-job_create_view = JobCreateView.as_view()
+class JobCreateDockView(JobCreateView):
+    form_class = JobDockForm
+
+    def post(self, request, *args, **kwargs):
+        request.POST = request.POST.copy()
+        request.POST['job_type'] = 'dock'
+        return super(JobCreateDockView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        run_dock.delay("test", "file", "file", 1, 2, 3)
+        return super(JobCreateDockView, self).form_valid(form)
+
+
+job_create_dock_view = JobCreateDockView.as_view()
+
+
+class JobCreateScoreView(JobCreateView):
+    form_class = JobScoreForm
+
+    def post(self, request, *args, **kwargs):
+        request.POST = request.POST.copy()
+        request.POST['job_type'] = 'score'
+        return super(JobCreateScoreView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        run_score.delay("test", "file", "file", 1, 2, 3)
+        return super(JobCreateScoreView, self).form_valid(form)
+
+
+job_create_score_view = JobCreateScoreView.as_view()
 
 
 class JobListView(LoginRequiredMixin, ListView):
@@ -52,7 +92,9 @@ class JobDeleteView(DeleteView):
     model = Job
     slug_field = "job_name"
     slug_url_kwarg = "job_name"
-    success_url = '/jobs/'
+
+    def get_success_url(self):
+        return reverse("jobs:list")
 
 
 job_delete_view = JobDeleteView.as_view()
