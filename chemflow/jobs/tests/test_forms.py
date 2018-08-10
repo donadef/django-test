@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.core.files.uploadedfile import TemporaryUploadedFile
 
 from ..models import Job
 User = get_user_model()
@@ -22,12 +23,15 @@ class JobTestCase(TestCase):
         c = Client()
         c.force_login(user=self.user)
 
+        receptor_file = TemporaryUploadedFile('/home/donadef/Documents/receptor.mol', 'text/plain', 1, 'utf8')
+        ligands_file = TemporaryUploadedFile('/home/donadef/Documents/receptor.mol',  'text/plain', 1, 'utf8')
+
         data1 = {
             "project_name": "test",
             "protocol": "test",
             "sf": "vina",
-            "receptor_file": "/home/donadef/Downloads/Screenshot.png",
-            "ligands_file": "/home/donadef/Downloads/Screenshot.png",
+            "receptor_file": receptor_file,
+            "ligands_file": ligands_file,
         }
 
         response = c.post(reverse('jobs:create_dock'), data=data1)

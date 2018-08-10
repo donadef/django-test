@@ -1,6 +1,8 @@
+import os
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, ListView, CreateView, DeleteView
 from django.urls import reverse
+from django.conf import settings
 
 from .models import Job
 from .forms import JobDockForm, JobScoreForm
@@ -14,14 +16,11 @@ class JobCreateView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         request.POST = request.POST.copy()
-        print(request.POST)
-        print(request.FILES)
         request.POST['owner'] = request.user.id
         request.POST['state'] = 'Q'
         request.POST['job_name'] = request.POST.get('project_name') + " - " + request.POST.get('protocol')
-        print(request.FILES['receptor_file'])
-        request.POST['receptor_name'] = request.FILES['receptor_file']
-        request.POST['ligands_name'] = request.FILES['receptor_file']
+        request.POST['receptor_name'] = str(request.FILES['receptor_file']).split('.')[0]
+        request.POST['ligands_name'] = str(request.FILES['ligands_file']).split('.')[0]
         return super(JobCreateView, self).post(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -44,10 +43,10 @@ class JobCreateDockView(JobCreateView):
     def post(self, request, *args, **kwargs):
         request.POST = request.POST.copy()
         request.POST['job_type'] = 'dock'
+
         return super(JobCreateDockView, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        run_dock.delay("test", "file", "file", 1, 2, 3)
         return super(JobCreateDockView, self).form_valid(form)
 
 
@@ -60,6 +59,7 @@ class JobCreateScoreView(JobCreateView):
     def post(self, request, *args, **kwargs):
         request.POST = request.POST.copy()
         request.POST['job_type'] = 'score'
+
         return super(JobCreateScoreView, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):

@@ -31,11 +31,13 @@
               <label for="{{ form.receptor_file.id_for_label }}">Receptor file</label>
               <small><span class="mol2">(a .mol2 file)</span><span class="pdb" style="display: none;">(a .pdb file)</span></small>
               {{ form.receptor_file }}
+              <span id="id_receptor_file_errors" style="color: red;"><small>{{ form.receptor_file.errors }}</small></span>
             </div>
             <div class="form-group">
               <label for="{{ form.ligands_file.id_for_label }}">Ligands file</label>
               <small>(a .mol2 file)</small>
               {{ form.ligands_file }}
+              <span id="id_ligand_file_errors" style="color: red;"><small>{{ form.ligands_file.errors }}</small></span>
             </div>
             <div class="form-group center">
               <label>Center</label>
@@ -59,7 +61,12 @@
                 {{ form.size_z }}
               </div>
             </div>
+
             <button type="submit" onclick="reset_sf()" class="btn btn-primary">Launch</button>
+            <a href="{% url 'jobs:list' %}">
+              <button type="button" class="btn btn--default">Cancel</button>
+            </a>
+
           </form>
         </div>
       </div>

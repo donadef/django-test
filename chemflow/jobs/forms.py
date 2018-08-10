@@ -10,8 +10,22 @@ SF_CHOICES_DOCK = (
     ('plp', 'plp'),
 )
 
+class JobForm(forms.ModelForm):
+    def clean_receptor_file(self):
+        receptor_file = self.cleaned_data['receptor_file']
+        ext = str(receptor_file).split('.')[-1]
+        sf = self.cleaned_data['sf']
+        if sf == 'vina' and ext != 'mol2':
+            raise forms.ValidationError("Vina rescoring requires a mol2 file as receptor input.")
+        elif sf in ['chemplp', 'plp', 'plp95'] and ext != 'mol2':
+            raise forms.ValidationError("Plants rescoring requires a mol2 file as receptor input")
+        elif sf in ['mmgbsa', 'mmpbsa'] and ext != 'pdb':
+            raise forms.ValidationError("MM-GBSA rescoring requires a PDB file as receptor input.")
 
-class JobDockForm(forms.ModelForm):
+        return receptor_file
+
+
+class JobDockForm(JobForm):
     class Meta:
         model = Job
         fields = "__all__"
@@ -62,6 +76,8 @@ class JobDockForm(forms.ModelForm):
         }
 
 
+
+
 SF_CHOICES_SCORE = (
     ('vina', 'Vina'),
     ('chemplp', 'ChemPLP'),
@@ -72,7 +88,7 @@ SF_CHOICES_SCORE = (
 )
 
 
-class JobScoreForm(forms.ModelForm):
+class JobScoreForm(JobForm):
     class Meta:
         model = Job
         fields = "__all__"
