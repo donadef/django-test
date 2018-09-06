@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static i18n %}
+{% load staticfiles %}
 {% block title %}Jobs{% endblock %}
 
 {% block content %}
@@ -11,15 +11,15 @@
           <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
-              <label for="{{ form.project.id_for_label }}">Project</label>
+              <label for="{{ form.project_name.id_for_label }}">Project</label>
               {{ form.project_name }}
             </div>
             <div class="form-group">
-              <label for="{{ form.protocol.id_for_label }}">Protocol</label>
-              {{ form.protocol }}
+              <label for="{{ form.protocol_name.id_for_label }}">Protocol</label>
+              {{ form.protocol_name }}
             </div>
             <div class="form-group">
-              <label for="{{ form.protocol.id_for_label }}">Job name</label>
+              <label for="{{ form.job_name.id_for_label }}">Job name</label>
               {{ form.job_name }}
               <span id="id_job_name_errors" style="color: red;"><small>{{ form.job_name.errors }}</small></span>
             </div>
@@ -62,7 +62,7 @@
               </div>
             </div>
 
-            <button type="submit" onclick="reset_sf()" class="btn btn-primary">Launch</button>
+            <button type="submit" class="btn btn-primary">Launch</button>
             <a href="{% url 'jobs:list' %}">
               <button type="button" class="btn btn--default">Cancel</button>
             </a>
@@ -75,15 +75,5 @@
   {% endblock content %}
 
   {% block javascript_spe %}
-  <script>
-
-    document.getElementById("id_project_name").oninput = function() {update_job_name_with_project_name()};
-    document.getElementById("id_protocol").oninput = function() {update_job_name_with_protocol()};
-
-    document.getElementById("id_sf").onchange = function() {update_required_field()};
-
-    document.getElementsByTagName("button").onclick = function() {reset_sf}
-
-
-  </script>
+  <script src="{% static 'js/create_form.js' %}"></script>
   {% endblock javascript_spe %}

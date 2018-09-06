@@ -3,8 +3,142 @@
 {% block title %}ChemFlow | {{ object.job_name }}{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h2>Job </h2>
+  <h2>{% if object.job_type == 'dock' %} Docking:{% else %} Scoring:{% endif %} {{ object.job_name }}</h2>
 
-</div>
+  <div class="container">
+    <div class="row">
+      <div class="m-2" style="float:left; width:45%;">
+        <h4>Summary: </h4>
+        <div class="row">
+          <div class="col-md-8 m-2">
+            Project : {{ object.project_name }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-8 m-2">
+            Protocol : {{ object.protocol_name }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-8 m-2">
+            Scoring function : {{ object.sf }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-8 m-2">
+            Receptor : {{ object.receptor_name }}
+            <form style="display:inline-block;" action="{% url 'jobs:detail' job.pk %}" method="get">
+                <button type="submit" class="btn btn--default" name="download_receptor" value="true">
+                   <span class="fas fa-download" aria-hidden="true"></span>
+                </button>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-8 m-2">
+            Ligands : {{ object.ligands_name }}
+            <form style="display:inline-block;" action="{% url 'jobs:detail' job.pk %}" method="get">
+                <button type="submit" class="btn btn--default" name="download_ligands" value="true">
+                    <span class="fas fa-download" aria-hidden="true"></span>
+                </button>
+            </form>
+          </div>
+        </div>
+        {% if object.sf != 'mmgbsa' %}
+          <div class="row">
+            <div class="col-md-8 m-2">
+              center_x : {{ object.center_x }}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-8 m-2">
+              center_y : {{ object.center_y }}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-8 m-2">
+              center_z : {{ object.center_z }}
+            </div>
+          </div>
+          {% if object.sf != 'vina' %}
+            <div class="row">
+              <div class="col-md-8 m-2">
+                radius : {{ object.radius }}
+              </div>
+            </div>
+          {% endif %}
+          {% if object.sf == 'vina' %}
+            <div class="row">
+              <div class="col-md-8 m-2">
+                size_x : {{ object.size_x }}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-8 m-2">
+                size_y : {{ object.size_y }}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-8 m-2">
+                size_z : {{ object.size_z }}
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+        <div class="row">
+          <div class="col-md-8 m-2">
+            state : {{ object.state }}
+          </div>
+        </div>
+      </div>
+      <div style="float:left; width: 45%;">
+        {% if object.state == 'SUCCESS' %}
+          <div class="m-2">
+            <form action="{% url 'jobs:detail' job.pk %}" method="get">
+                <button type="submit" class="btn btn--default" name="postprocess" value="true">Post-process</button>
+            </form>
+          </div>
+        {% elif  object.state == 'POST PROCESS' %}
+          <div class="row">
+            <div class="m-2">
+              <button type="submit" class="btn btn--default" name="status" value="post-process" disabled>Post-processed</button>
+            </div>
+            <div class="m-2">
+              <form action="{% url 'jobs:detail' job.pk %}" method="get">
+                  <button type="submit" class="btn btn--default" name="download" value="true">
+                     <span class="fas fa-download" aria-hidden="true"></span>
+                  </button>
+              </form>
+            </div>
+          </div>
+          {% if object.job_type == 'dock' %}
+          <div class="row">
+            <div class="m-2">
+              <form style="display:inline-block;" action="{% url 'jobs:detail' job.pk %}" method="get">
+                  <button type="submit" class="btn btn--default" name="download_docking" value="true">
+                      Docking results <span class="fas fa-download" aria-hidden="true"></span>
+                  </button>
+              </form>
+            </div>
+          </div>
+          {% endif%}
+          <div class="row">
+            <div class="m-2">
+              <form style="display:inline-block;" action="{% url 'jobs:detail' job.pk %}" method="get">
+                  <button type="submit" class="btn btn--default" name="download_energy" value="true">
+                      Energy results <span class="fas fa-download" aria-hidden="true"></span>
+                  </button>
+              </form>
+            </div>
+          </div>
+        {% else %}
+        <div class="row">
+          <div class="m-2">
+            <button type="submit" class="btn btn--default" name="status" value="post-process" disabled>Post-process</button>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 {% endblock content %}

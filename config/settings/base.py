@@ -75,6 +75,7 @@ THIRD_PARTY_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'rest_framework',
+    'django_celery_results',
 ]
 LOCAL_APPS = [
     'chemflow.users.apps.UsersAppConfig',
@@ -246,3 +247,7 @@ SOCIALACCOUNT_ADAPTER = 'chemflow.users.adapters.SocialAccountAdapter'
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672//"
+CELERY_RESULT_BACKEND = 'django-db'
+

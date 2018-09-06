@@ -1,8 +1,9 @@
 import os
 from django.db import models
 from django.conf import settings
+from django_celery_results.models import TaskResult
 
-from chemflow.jobs.tasks import run_dock, run_score
+# from .tasks import run_dock, run_score
 
 
 def user_directory_path(instance, filename):
@@ -14,7 +15,7 @@ class Job(models.Model):
     job_type = models.CharField(max_length=50, blank=True)
     job_name = models.CharField(max_length=100,  blank=True)
     project_name = models.CharField(max_length=50, blank=True)
-    protocol = models.CharField(max_length=50, blank=True)
+    protocol_name = models.CharField(max_length=50, blank=True)
     sf = models.CharField(max_length=50, default='vina')
 
     receptor_file = models.FileField(upload_to=user_directory_path)
@@ -35,7 +36,9 @@ class Job(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True)
-    state = models.CharField(max_length=50, default='Q')
+    state = models.CharField(max_length=50, default='0')
+    job_task = models.CharField(max_length=100, blank=True, null=True)
+    postprocess_task = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.job_name
@@ -45,22 +48,19 @@ class Job(models.Model):
         super(Job, self).save(force_insert=False, force_update=False, using=None,
                               update_fields=None)
 
-        workdir = os.path.join(settings.MEDIA_ROOT, 'user_' + self.owner.username)
-        print(workdir)
-        project_name = self.project_name
-        protocol_name = self.protocol
-        receptor_file_path = os.path.basename(str(self.receptor_file))
-        ligands_file_path = os.path.basename(str(self.ligands_file))
-        center_x = str(self.center_x)
-        center_y = str(self.center_y)
-        center_z = str(self.center_z)
-        sf = self.sf
-        run_dock.delay(workdir,
-                       project_name,
-                       protocol_name,
-                       receptor_file_path,
-                       ligands_file_path,
-                       center_x,
-                       center_y,
-                       center_z,
-                       sf)
+        if self.state == 'RUNNING':
+            try:
+                self.state = TaskResult.objects.get(task_id=self.job_task).status
+                self.save()
+            except TaskResult.DoesNotExist:
+                pass
+
+        elif self.state == 'POST PROCESSING':
+            if self.postprocess_task:
+                try:
+                    state = TaskResult.objects.get(task_id=self.postprocess_task).status
+                    if state == 'SUCCESS':
+                        self.state = 'POST PROCESS'
+                        self.save()
+                except TaskResult.DoesNotExist:
+                    pass
